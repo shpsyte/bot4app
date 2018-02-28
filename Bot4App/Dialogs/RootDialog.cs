@@ -15,6 +15,8 @@ namespace Bot4App.Dialogs
             return Task.CompletedTask;
         }
 
+
+        
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
