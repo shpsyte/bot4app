@@ -1,5 +1,6 @@
 ﻿using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.FormFlow;
+using Microsoft.Bot.Builder.FormFlow.Advanced;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +14,10 @@ namespace Bot4App.Forms
     public class CaptureLead
     {
         [Describe("Tipo do Bot")]
-        [Template(TemplateUsage.EnumSelectOne, "Qual tipo de {&} que gostaria de criar ? {||}", ChoiceStyle = ChoiceStyleOptions.PerLine)]
+        [Template(TemplateUsage.EnumSelectOne, "Qual tipo de {&} que gostaria de criar ? {||}", ChoiceStyle = ChoiceStyleOptions.Buttons)]
         public TipoBot TipoBot { get; set; }
-        
+
         [Prompt("Qual o seu Nome ?")]
-        [Template(TemplateUsage.NotUnderstood, "What does \"{0}\" mean???")]
         [Describe("Nome")]
         public string Name { get; set; }
 
@@ -27,39 +27,52 @@ namespace Bot4App.Forms
         public string Email { get; set; }
 
         [Prompt("Qual o seu Telefone ?")]
-        [Describe("Fone")]
-        [Pattern(@"(<Undefined control sequence>\d)?\s*\d{3}(-|\s*)\d{4}")]
+        [Pattern(@"^\d$")]
         public string Fone { get; set; }
 
-        [Describe("Breve observação")]
+        [Prompt("Quer adicionar alguma observação ?")]
         [Optional]
         public string Describe { get; set; }
 
         [Optional]
-//        [Prompt("Você tem API ? {||}")]
-        [Template(TemplateUsage.EnumSelectOne, "Você tem api {&} que gostaria de integrar ? {||}", ChoiceStyle = ChoiceStyleOptions.PerLine)]
-  //      [Template(TemplateUsage.CurrentChoice, "Nenhuma opção")]
+        // [Prompt("Você tem API ? {||}")]
+        [Template(TemplateUsage.EnumSelectOne, "Você quer itegrar com seu sistema ? ", ChoiceStyle = ChoiceStyleOptions.Buttons)]
+        //      [Template(TemplateUsage.CurrentChoice, "Nenhuma opção")]
         public Api api { get; set; }
 
         public static IForm<CaptureLead> BuildForm()
         {
 
-            var form = new FormBuilder<CaptureLead>();
-            form.Configuration.DefaultPrompt.ChoiceStyle = ChoiceStyleOptions.Buttons;
-            form.Configuration.Yes = new string[] { "sim", "yes", "s", "y", "yeap", "ok" };
-            form.Configuration.No = new string[] { "nao", "não", "no", "not", "n" };
-            //form.Confirm(async (email) =>
-            // {
-            //     return new PromptAttribute($"Ok, vou lhe pedir alguns dados, ok ?");
-            // });
-            
-
-            form.OnCompletion(async (context, pedido) =>
+            OnCompletionAsyncDelegate<CaptureLead> processOrder = async (context, state) =>
             {
-                //Salvra n base de dadoo gerar pedido, integrar com servicos PTO
-                await context.PostAsync("Pronto, ok, seus dados serão enviados..");
-            });
-            return form.Build();
+                await context.PostAsync("Estamos processando seu pedido...");
+            };
+
+            return new FormBuilder<CaptureLead>()
+                    .Message("Welcome to the sandwich order bot!")
+                    .Field(nameof(TipoBot))
+                    .Field(nameof(Name))
+                    .Field(nameof(Email))
+                    .Field(nameof(Fone))
+                    .Field(nameof(Describe),
+                        validate: async (state, value) =>
+                        {
+                            var result = new ValidateResult { IsValid = true, Value = "" };
+                            return result;
+                        })
+                      .Message("For sandwich toppings you have selected {TipoBot}.")
+
+                    .Confirm(async (state) =>
+                    {
+                        var cost = 0.0;
+
+                        return new PromptAttribute($"Total for your sandwich is {cost:C2} is that ok?");
+                    })
+                    //.Confirm("Do you want to order your {TipoBot} {Name} on {Email} {&Email}?")
+                    .AddRemainingFields()
+                    .Message("Thanks for ordering a sandwich!")
+                    .OnCompletion(processOrder)
+                    .Build();
 
         }
 
@@ -73,13 +86,13 @@ namespace Bot4App.Forms
             builder.AppendFormat("Fone: {0} ", Fone);
             builder.AppendFormat("Descrição: {0} ", Describe);
             builder.AppendFormat("Tem API: {0} ", api);
-             
+
             return builder.ToString();
         }
 
-    } 
+    }
+
      
-    [Describe("Tipo do Bot")]
     public enum TipoBot
     {
         [Describe("Outro")]
@@ -89,14 +102,14 @@ namespace Bot4App.Forms
         [Terms("Atend", "A", "atendimento")]
         Atendimento,
         [Describe("Prospect")]
-        [Terms("Cap", "C", "Captura", "lead", "Prospect" , "Captura de Bot")]
+        [Terms("Cap", "C", "Captura", "lead", "Prospect", "Captura de Bot")]
         CapLead,
         [Describe("FaQ")]
         [Terms("faq", "F", "faq", "Faq")]
         Faq
     }
 
-    [Describe("Você possui API? ")]
+     
     public enum Api
     {
         [Terms("Não sei", "nao sei")]

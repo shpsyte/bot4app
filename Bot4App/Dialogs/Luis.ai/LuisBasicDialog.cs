@@ -25,13 +25,16 @@ namespace Bot4App.Dialogs.Luis.ai
 
         private readonly static string _LuisModelId = "a2ca67c6-9f1c-43ee-90e1-c9c297d5f330"; //ConfigurationManager.AppSettings["QnaSubscriptionKey"]
         private readonly static string _LuiSubscriptionKey = "a8046f7776b7494db8f1ea873eac5c3e"; //ConfigurationManager.AppSettings["LuisId"]
-        private readonly static string _DefatulMsg = "Hum... Minha conciência não entende isso ainda, mas com certeza aprenderei mais sobre isso...";
+        private readonly static string _DefatulMsg = "Hum... Minha conciência não entende isso ainda, " +
+            "mas com certeza aprenderei mais sobre isso...  " +
+            "Você pode perguntar sobre **Bot**, **Solicitar Orçamentos**, **Traduzir Texto**, e até **Contar uma piada**";
 
         public LuisBasicDialog() : base(new LuisService(new LuisModelAttribute(_LuisModelId, _LuiSubscriptionKey, LuisApiVersion.V2)))
         {
              
         }
  
+
 
         [LuisIntent("None")]
         [LuisIntent("")]

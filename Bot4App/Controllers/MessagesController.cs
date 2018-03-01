@@ -31,6 +31,20 @@ namespace Bot4App
 
                 await Conversation.SendAsync(activity, () => new LuisBasicDialog());
             }
+            else if (activity.Type == ActivityTypes.ConversationUpdate)
+            {
+                if (activity.MembersAdded != null && activity.MembersAdded.Any())
+                {
+                    foreach (var member in activity.MembersAdded)
+                    {
+                        if (member.Id != activity.Recipient.Id)
+                        {
+                            await this.SendConversation(activity);
+                        };
+                    }
+
+                }
+            }
             else
             {
                 await HandleSystemMessageAsync(activity);
@@ -55,6 +69,11 @@ namespace Bot4App
         //}
 
 
+        private async Task SendConversation(Activity activity)
+        {
+            //await Conversation.SendAsync(activity, () => new Dialogs.BootLuisDialog());
+            await Conversation.SendAsync(activity, () => Chain.From(() => FormDialog.FromForm(() => Forms.CaptureLead.BuildForm(), FormOptions.PromptFieldsWithValues)));
+        }
 
         private async Task<Activity> HandleSystemMessageAsync(Activity message)
         {
@@ -65,33 +84,7 @@ namespace Bot4App
             }
             else if (message.Type == ActivityTypes.ConversationUpdate)
             {
-                IConversationUpdateActivity update = message;
-                var client = new ConnectorClient(new Uri(message.ServiceUrl));
-                if (update.MembersAdded != null && update.MembersAdded.Any())
-                {
-                    foreach (var newMember in update.MembersAdded)
-                    {
-                        if (newMember.Id != message.Recipient.Id)
-                        {
-                            var reply = message.CreateReply();
-                            reply.Text = $"**(▀̿Ĺ̯▀̿ ̿)** { "Oi sou o Bot, estou aprendendo muitas coisas.. quero ajudar você a me contratar.."}";
-                            await client.Conversations.ReplyToActivityAsync(reply);
-
-                            await SendBotIsTyping(message, client);
-
-                            await Task.Delay(2000); // 4 second delay
-                            reply.Text = $"Então o que estou aprendendo é responder questões de **Bot**, **Solicitar Orçamentos de Bot**, **Traduzir Texto**, e até **Contar uma piada**";
-                            await client.Conversations.ReplyToActivityAsync(reply);
-
-                            await SendBotIsTyping(message, client);
-
-                            await Task.Delay(2000); // 4 second delay
-                            reply.Text = $"Vamos lá ? Sempre que precisar digite ajuda...";
-                            await client.Conversations.ReplyToActivityAsync(reply);
-
-                        }
-                    }
-                }
+                // Handle add
             }
             else if (message.Type == ActivityTypes.ContactRelationUpdate)
             {

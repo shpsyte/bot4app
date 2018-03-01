@@ -37,14 +37,15 @@ namespace Bot4App.Dialogs.Luis.ai
         public async Task RequestQuoteForm(IDialogContext context, LuisResult result)
         {
 
-            //var activity = (context.Activity as Activity);
-            //await Conversation.SendAsync(activity, () => Chain.From(() => FormDialog.FromForm(() => CaptureLead.BuildForm(), FormOptions.PromptFieldsWithValues)));
-            //var form = new CaptureLead();
 
+            var activity = (context.Activity as Activity);
             var capLeadForm = new CaptureLead();
             var entities = new List<EntityRecommendation>(result.Entities);
+
             var form = new FormDialog<CaptureLead>(capLeadForm, CaptureLead.BuildForm, FormOptions.PromptInStart, entities);
-            context.Call<CaptureLead>(form, CaptureLeadComplete);
+            //context.Call<CaptureLead>(form, CaptureLeadComplete);
+
+            await Conversation.SendAsync(activity, () => Chain.From(() => FormDialog.FromForm(() => CaptureLead.BuildForm(), FormOptions.PromptFieldsWithValues)));
 
 
         }
