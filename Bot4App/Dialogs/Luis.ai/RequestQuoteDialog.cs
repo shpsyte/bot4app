@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using static Bot4App.Models.Domain;
+using System.Net.Mail;
 
 namespace Bot4App.Dialogs.Luis.ai
 {
@@ -24,7 +25,12 @@ namespace Bot4App.Dialogs.Luis.ai
     {
         private readonly static string _LuisModelId = "a2ca67c6-9f1c-43ee-90e1-c9c297d5f330"; //ConfigurationManager.AppSettings["QnaSubscriptionKey"]
         private readonly static string _LuiSubscriptionKey = "a8046f7776b7494db8f1ea873eac5c3e"; //ConfigurationManager.AppSettings["LuisId"]
-        private readonly static string _DefatulMsg = "Hum... Minha conciência não entende isso ainda, mas com certeza aprenderei mais sobre isso...";
+        private readonly static string _msg = $"Estou aprendendo muitas coisas, mas veja o que já posso fazer:\n" +
+                             "* **Pergunte sobre mim**, tipo: *O que você é?*, ou algo assim\n" +
+                             "* **Solicitar um orçamento**, tipo: *Pode enviar um orçamento?*, ou algo assim\n" +
+                             "* **Traduzir textos**, tipo: *Traduz pra mim ?*, ou algo assim\n" +
+                             "* **Contar piadas**, tipo: *Me conte uma piada?*, ou algo assim\n";
+
 
         public RequestQuoteDialog() : base(new LuisService(new LuisModelAttribute(_LuisModelId, _LuiSubscriptionKey, LuisApiVersion.V2)))
         {
@@ -43,9 +49,9 @@ namespace Bot4App.Dialogs.Luis.ai
             var entities = new List<EntityRecommendation>(result.Entities);
 
             var form = new FormDialog<CaptureLead>(capLeadForm, CaptureLead.BuildForm, FormOptions.PromptInStart, entities);
-            //context.Call<CaptureLead>(form, CaptureLeadComplete);
+            context.Call<CaptureLead>(form, CaptureLeadComplete);
 
-            await Conversation.SendAsync(activity, () => Chain.From(() => FormDialog.FromForm(() => CaptureLead.BuildForm(), FormOptions.PromptFieldsWithValues)));
+            //await Conversation.SendAsync(activity, () => Chain.From(() => FormDialog.FromForm(() => CaptureLead.BuildForm(), FormOptions.PromptFieldsWithValues)));
 
 
         }
@@ -54,7 +60,6 @@ namespace Bot4App.Dialogs.Luis.ai
         private async Task CaptureLeadComplete(IDialogContext context, IAwaitable<CaptureLead> result)
         {
             var activity = (context.Activity as Activity);
-            ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
             CaptureLead order = null;
             try
@@ -70,11 +75,25 @@ namespace Bot4App.Dialogs.Luis.ai
             if (order != null)
             {
 
-                await MessagesController.SendBotIsTyping(activity, connector);
-                await context.PostAsync("Ok... enviado");
+                
 
-                await MessagesController.SendBotIsTyping(activity, connector);
-                await context.PostAsync($"Se eu ajudar em outra coisa, é só me avisar... questões de **Bot**, **Solicitar Orçamentos de Bot**, **Traduzir Texto**, e até **Contar uma piada**");
+
+
+
+                MailMessage mail = new MailMessage("jose.luiz@iscosistemas.com", "jose.luiz@iscosistemas.com");
+                SmtpClient client = new SmtpClient();
+                client.Port = 587;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.UseDefaultCredentials = false;
+                client.Timeout = 10000;
+                client.Credentials = new System.Net.NetworkCredential("jose.luiz@iscosistemas.com", "Jymkatana_6985");
+                client.Host = "mail.iscosistemas.com";
+                mail.Subject = "Proposta.";
+                mail.Body = order.ToString();
+                client.Send(mail);
+
+                await context.PostAsync("Ok, enviado, logo algum representante lhe fará contato., lembre-se pode digitar **ajuda** \n" +
+                    "Posso ajudar em algo mais ?");
             }
             else
             {

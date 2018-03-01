@@ -13,8 +13,8 @@ namespace Bot4App.Models
             List<string> list = new List<string>();
 
             list.Add("Ok, não precisa ficar nervoso não..");
-            list.Add("Men, isos não é jeito de se falar..");
-            list.Add("hum... 'educadinho' einh..");
+            list.Add("Men, isso não é jeito de se falar..");
+            list.Add("hum... 'educadinho' einh.. vai ler um livro");
             list.Add("OMG, você precisa ler mais...");
             list.Add("Realy??? é sério isso ? ");
             list.Add("??? Me poupe né...");
@@ -73,14 +73,14 @@ namespace Bot4App.Models
             List<string> list = new List<string>();
 
             list.Add("Bit, bit, Bit ops.. Kkkkkkk");
-            list.Add("10100010011111000.");
-            list.Add("lol.");
-            list.Add(":)");
-            list.Add("uuuuuuahuahu eeeee");
+            list.Add("hhihihihih. 🕺🕺🕺");
+            list.Add("lol 😃😃😃😃");
+            list.Add(":) 😅");
+            list.Add("uuuuuuahuahu :smiley: :smiley: 😎😎");
             list.Add("(▀̿Ĺ̯▀̿ ̿)");
-            list.Add("Yes,  1010100010010001110101011");
-            list.Add("ahuauhahuha");
-            list.Add("rs lol... ");
+            list.Add("Sim, kkkkkk 😜😜😜😜");
+            list.Add("ahuauhahuha 😄");
+            list.Add("rs lol... 😄😄");
             list.Add("(▀̿Ĺ̯▀̿ ̿) (▀̿Ĺ̯▀̿ ̿) (▀̿Ĺ̯▀̿ ̿)");
             list.Add(";)");
             list.Add("😀😀😀");
@@ -99,6 +99,131 @@ namespace Bot4App.Models
             return list[r];
 
         }
+
+
+
+
+        public static List<string> ListEmojiHappy()
+        {
+
+            List<string> list = new List<string>();
+
+            list.Add("😀");
+            list.Add("🤣");
+            list.Add("😅");
+            list.Add("😜");
+            list.Add("🤪");
+            list.Add("🙂");
+            list.Add("☺");
+            list.Add("😏");
+            list.Add("😃");
+            list.Add("😛");
+            list.Add("😀😀");
+            list.Add("🤣🤣");
+            list.Add("🙃🤣😀");
+            list.Add("😅");
+            list.Add("😀😀");
+            
+
+            return list;
+        }
+
+
+        public static string GetRandomEmojiHappy()
+        {
+            Random rnd = new Random();
+            List<string> list = ListEmojiHappy();
+            int r = rnd.Next(list.Count);
+
+            return list[r];
+
+        }
+
+
+        public static string GetListRandomEmojiHappy(int total = 7)
+        {
+            Random rnd = new Random();
+            int totalEmoji = rnd.Next(1, total);
+            string s = "";
+            List<string> list = ListEmojiHappy();
+            
+
+            for (int i = 0; i < totalEmoji; i++)
+            {
+                int r = rnd.Next(list.Count);
+                s += list[r];
+            }
+
+
+            return s;
+
+        }
+
+
+
+
+
+        public static List<string> ListEmojiAngry()
+        {
+
+            List<string> list = new List<string>();
+
+            list.Add("😐");
+            list.Add("😵");
+            list.Add("😡");
+            list.Add("🤬");
+            list.Add("💤");
+            list.Add("😭");
+            list.Add("😣");
+            list.Add("😖");
+            list.Add("😩");
+            list.Add("😨");
+            list.Add("😳😟😡");
+            list.Add("👿👿😣🤬");
+            list.Add("😵😭😡");
+            list.Add("😡");
+            list.Add("🤬😡");
+            list.Add("💤😵");
+            list.Add("😭😩😩");
+            list.Add("😣😣😣");
+            list.Add("😖😖😖😖");
+            list.Add("😩😣😩😣");
+
+
+            return list;
+        }
+
+
+        public static string GetRandomEmojiAngry()
+        {
+            Random rnd = new Random();
+            List<string> list = ListEmojiAngry();
+            int r = rnd.Next(list.Count);
+
+            return list[r];
+
+        }
+
+
+        public static string GetListRandomEmojiAngry(int total = 7)
+        {
+            Random rnd = new Random();
+            int totalEmoji = rnd.Next(1, total);
+            string s = "";
+            List<string> list = ListEmojiAngry();
+
+
+            for (int i = 0; i < totalEmoji; i++)
+            {
+                int r = rnd.Next(list.Count);
+                s += list[r];
+            }
+
+
+            return s;
+
+        }
+
 
 
 

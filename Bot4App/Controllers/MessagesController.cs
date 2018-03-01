@@ -24,10 +24,15 @@ namespace Bot4App
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
             ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+            var _msg = $"Estou aprendendo muitas coisas, mas veja o que já posso fazer:\n" +
+                              "* **Pergunte sobre mim**, tipo: *O que você é?*, ou algo assim\n" +
+                              "* **Solicitar uma proposta**, tipo: *Pode enviar uma proposta?*, ou algo assim\n" +
+                              "* **Traduzir textos**, tipo: *Traduz pra mim ?*, ou algo assim\n" +
+                              "* **Contar piadas**, tipo: *Me conte uma piada?*, ou algo assim\n";
 
             if (activity.Type == ActivityTypes.Message)
             {
-                await SendBotIsTyping(activity, connector);
+                await SendBotIsTyping(activity);
 
                 await Conversation.SendAsync(activity, () => new LuisBasicDialog());
             }
@@ -39,7 +44,24 @@ namespace Bot4App
                     {
                         if (member.Id != activity.Recipient.Id)
                         {
-                            await this.SendConversation(activity);
+                            //await this.SendConversation(activity);
+                            var reply = activity.CreateReply();
+                            reply.Text = $"**( ͡° ͜ʖ ͡°)**  Oi sou o Bot, estou aprendendo muitas coisas.. " +
+                                $"quero lhe ajudar a me entender... vamos la ? ";
+                            await connector.Conversations.ReplyToActivityAsync(reply);
+
+                            await SendBotIsTyping(activity);
+                            
+
+                            await Task.Delay(2000); // 4 second delay
+                            reply.Text = _msg;
+                            await connector.Conversations.ReplyToActivityAsync(reply);
+
+                            //await SendBotIsTyping(message, client);
+
+                            //await Task.Delay(2000); // 4 second delay
+                            //reply.Text = $"Vamos lá ? Sempre que precisar digite ajuda...";
+                            //await client.Conversations.ReplyToActivityAsync(reply);
                         };
                     }
 
@@ -55,11 +77,14 @@ namespace Bot4App
             return response;
         }
 
-        public static async Task SendBotIsTyping(Activity activity, ConnectorClient connector)
+        public static async Task SendBotIsTyping(Activity activity)
         {
             Activity reply = activity.CreateReply();
             reply.Type = ActivityTypes.Typing;
             reply.Text = null;
+
+            ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+
             await connector.Conversations.ReplyToActivityAsync(reply);
         }
 
@@ -93,12 +118,12 @@ namespace Bot4App
             }
             else if (message.Type == ActivityTypes.Typing)
             {
-                var client = new ConnectorClient(new Uri(message.ServiceUrl), new MicrosoftAppCredentials());
+                //var client = new ConnectorClient(new Uri(message.ServiceUrl), new MicrosoftAppCredentials());
 
-                ITypingActivity update = message;
-                var reply = message.CreateReply();
-                reply.Text = $"Estou aguardando você digitar...";
-                await client.Conversations.ReplyToActivityAsync(reply);
+                //ITypingActivity update = message;
+                //var reply = message.CreateReply();
+                //reply.Text = $"Estou aguardando você digitar...";
+                //await client.Conversations.ReplyToActivityAsync(reply);
                // return (Activity)reply;
                  
             }

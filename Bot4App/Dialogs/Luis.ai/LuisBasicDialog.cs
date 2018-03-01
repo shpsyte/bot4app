@@ -26,8 +26,14 @@ namespace Bot4App.Dialogs.Luis.ai
         private readonly static string _LuisModelId = "a2ca67c6-9f1c-43ee-90e1-c9c297d5f330"; //ConfigurationManager.AppSettings["QnaSubscriptionKey"]
         private readonly static string _LuiSubscriptionKey = "a8046f7776b7494db8f1ea873eac5c3e"; //ConfigurationManager.AppSettings["LuisId"]
         private readonly static string _DefatulMsg = "Hum... Minha conciência não entende isso ainda, " +
-            "mas com certeza aprenderei mais sobre isso...  " +
-            "Você pode perguntar sobre **Bot**, **Solicitar Orçamentos**, **Traduzir Texto**, e até **Contar uma piada**";
+            "mas com certeza aprenderei mais sobre isso...  ";
+
+        private readonly static string _msg = $"Estou aprendendo muitas coisas, mas veja o que já posso fazer:\n" +
+                             "* **Pergunte sobre mim**, tipo: *O que você é?*, ou algo assim\n" +
+                             "* **Solicitar uma proposta**, tipo: *Pode enviar uma proposta?*, ou algo assim\n" +
+                             "* **Traduzir textos**, tipo: *Traduz pra mim ?*, ou algo assim\n" +
+                             "* **Contar piadas**, tipo: *Me conte uma piada?*, ou algo assim\n";
+
 
         public LuisBasicDialog() : base(new LuisService(new LuisModelAttribute(_LuisModelId, _LuiSubscriptionKey, LuisApiVersion.V2)))
         {
@@ -40,7 +46,7 @@ namespace Bot4App.Dialogs.Luis.ai
         [LuisIntent("")]
         public async Task None(IDialogContext context, LuisResult result)
         {
-            await context.PostAsync($"{_DefatulMsg} ( {result.Query} )");
+            await context.PostAsync($"{_DefatulMsg}\n{_msg}");
 
             //var days = (IEnumerable<Days>)Enum.GetValues(typeof(Days));
             //PromptDialog.Choice(context, StoreHoursResult, days, "Which day of the week?",
@@ -64,28 +70,24 @@ namespace Bot4App.Dialogs.Luis.ai
         
 
         [LuisIntent("laugh-bot")]
-        public async Task Laugh(IDialogContext context, LuisResult result) => await context.PostAsync($"{ FakeList.GetRandomLaugh()}");
+        public async Task Laugh(IDialogContext context, LuisResult result) => await context.PostAsync($"{ FakeList.GetRandomLaugh()}  { FakeList.GetListRandomEmojiHappy(3) }");
 
         [LuisIntent("hate-bot")]
-        public async Task Hat(IDialogContext context, LuisResult result) => await context.PostAsync($"**(▀̿Ĺ̯▀̿ ̿)** { FakeList.GetRandomHatPhrase()}");
+        public async Task Hat(IDialogContext context, LuisResult result) => await context.PostAsync($"{ FakeList.GetRandomHatPhrase()} { FakeList.GetListRandomEmojiAngry(6) }  ");
 
 
         [LuisIntent("joke-bot")]
-        public async Task Joke(IDialogContext context, LuisResult result) => await context.PostAsync($"**(▀̿Ĺ̯▀̿ ̿)** { FakeList.GetRandomJoke()}");
+        public async Task Joke(IDialogContext context, LuisResult result) => await context.PostAsync($"{ FakeList.GetRandomJoke()} { FakeList.GetListRandomEmojiHappy(6) } ");
 
         [LuisIntent("help-bot")]
         public async Task Help(IDialogContext context, LuisResult result)
         {
-            var response = $"Então o que estou aprendendo é responder questões sobre \n" +
-                $"  **Bot**, \n " +
-                $"  **Solicitar Orçamentos de Bot**, \n " +
-                $"  **Traduzir Texto**, e até **Contar uma piada**";
+           
 
-             
-            await context.PostAsync(response);
+            await context.PostAsync(_msg);
             context.Done<string>(null);
         }
-
+         
 
         [LuisIntent("translate-bot")]
         public async Task Translate(IDialogContext context, LuisResult result)

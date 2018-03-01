@@ -1,6 +1,7 @@
 ﻿using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.FormFlow;
 using Microsoft.Bot.Builder.FormFlow.Advanced;
+using Microsoft.Bot.Connector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Bot4App.Forms
         public string Email { get; set; }
 
         [Prompt("Qual o seu Telefone ?")]
-        [Pattern(@"^\d$")]
+        //[Pattern(@"^\d$")]
         public string Fone { get; set; }
 
         [Prompt("Quer adicionar alguma observação ?")]
@@ -36,7 +37,7 @@ namespace Bot4App.Forms
 
         [Optional]
         // [Prompt("Você tem API ? {||}")]
-        [Template(TemplateUsage.EnumSelectOne, "Você quer itegrar com seu sistema ? ", ChoiceStyle = ChoiceStyleOptions.Buttons)]
+        [Template(TemplateUsage.EnumSelectOne, "Você quer integrar com seu sistema ? ", ChoiceStyle = ChoiceStyleOptions.Buttons)]
         //      [Template(TemplateUsage.CurrentChoice, "Nenhuma opção")]
         public Api api { get; set; }
 
@@ -45,34 +46,56 @@ namespace Bot4App.Forms
 
             OnCompletionAsyncDelegate<CaptureLead> processOrder = async (context, state) =>
             {
-                await context.PostAsync("Estamos processando seu pedido...");
+              
             };
 
-            return new FormBuilder<CaptureLead>()
-                    .Message("Welcome to the sandwich order bot!")
-                    .Field(nameof(TipoBot))
-                    .Field(nameof(Name))
-                    .Field(nameof(Email))
-                    .Field(nameof(Fone))
-                    .Field(nameof(Describe),
-                        validate: async (state, value) =>
-                        {
-                            var result = new ValidateResult { IsValid = true, Value = "" };
-                            return result;
-                        })
-                      .Message("For sandwich toppings you have selected {TipoBot}.")
+            var form = new FormBuilder<CaptureLead>();
+            form.Configuration.DefaultPrompt.ChoiceStyle = ChoiceStyleOptions.Buttons;
 
-                    .Confirm(async (state) =>
-                    {
-                        var cost = 0.0;
+            form.Configuration.Yes = new string[] { "sim", "yes", "s", "y", "yeap", "ok" };
+            form.Configuration.No = new string[] { "nao", "não", "no", "not", "n" };
+            form.Message("Vou lhe pedir alguns dados ok ?");
+            //form.Confirm($"Está tudo correto ?\n" +
+            //                "* Tipo do Bot: {TipoBot}\n" +
+            //                "* Nome: {Name}\n" +
+            //                "* Email: {Email}\n" +
+            //                "* Possui Integração: {api}\n");
 
-                        return new PromptAttribute($"Total for your sandwich is {cost:C2} is that ok?");
-                    })
-                    //.Confirm("Do you want to order your {TipoBot} {Name} on {Email} {&Email}?")
-                    .AddRemainingFields()
-                    .Message("Thanks for ordering a sandwich!")
-                    .OnCompletion(processOrder)
-                    .Build();
+            //var form = new FormBuilder<CaptureLead>()
+                    //.Message("Vou lhe pedir alguns dados ok ?")
+                    //.Field(nameof(TipoBot))
+                    //.Field(nameof(Name))
+                    //.Field(nameof(Email))
+                    //.Field(nameof(Fone))
+                    //.Field(nameof(Describe))
+                    //    validate: async (state, value) =>
+                    //    {
+                    //        var result = new ValidateResult { IsValid = true, Value = "" };
+                    //        return result;
+                    //    })
+                    //.Message("For sandwich toppings you have selected {TipoBot}.")
+
+                    //.Confirm(async (state) =>
+                    //{
+                    //    var cost = 0.0;
+
+                    //    return new PromptAttribute($"Seu e-mail está Total for your sandwich is {cost:C2} is that ok?");
+                    //})
+                    //.AddRemainingFields()
+                    //.Confirm($"Está tudo correto ?\n" +
+                    //        "* Tipo do Bot: {TipoBot}\n" +
+                    //        "* Nome: {Name}\n" +
+                    //        "* Email: {Email}\n" +
+                    //        "* Possui Integração: {api}\n")
+                    ////.Message("Thanks for ordering a sandwich!")
+                    //.OnCompletion(processOrder);
+
+                    //form.Configuration.DefaultPrompt.ChoiceStyle = ChoiceStyleOptions.Buttons;
+                    //form.Configuration.Yes = new string[] { "sim", "yes", "s", "y", "yeap", "ok" };
+                    //form.Configuration.No = new string[] { "nao", "não", "no", "not", "n" };
+
+               return form.Build();
+
 
         }
 
