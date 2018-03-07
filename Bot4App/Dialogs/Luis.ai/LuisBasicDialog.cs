@@ -1,21 +1,14 @@
-﻿using Bot4App.Forms;
-using Bot4App.Models;
+﻿using Bot4App.Models;
 using Bot4App.QnA;
 using Bot4App.Services;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Builder.FormFlow;
 using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
 using Microsoft.Bot.Connector;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http;
-using static Bot4App.Models.Domain;
 
 namespace Bot4App.Dialogs.Luis.ai
 {
@@ -41,7 +34,6 @@ namespace Bot4App.Dialogs.Luis.ai
         }
  
 
-
         [LuisIntent("None")]
         [LuisIntent("")]
         public async Task None(IDialogContext context, LuisResult result)
@@ -56,8 +48,18 @@ namespace Bot4App.Dialogs.Luis.ai
             //context.Done<string>(null);
         }
 
+        [LuisIntent("start-wars")]
+        public async Task StartWars(IDialogContext context, LuisResult result)
+        {
+            var activity = (context.Activity as Activity);
+            var message = activity.CreateReply();
+            message.Attachments.Add(GetAudioCard());
 
-        
+            await context.PostAsync(message);
+           // context.Wait(StartWars);
+
+        }
+
         [LuisIntent("sense-bot")]
         [LuisIntent("greeting-bot")]
         public async Task Conciencia(IDialogContext context, LuisResult result)
@@ -66,8 +68,6 @@ namespace Bot4App.Dialogs.Luis.ai
             var userQuestion = (context.Activity as Activity).Text;
             await context.Forward(new QnaAboutMe(), ResumeAfterQnA, context.Activity, CancellationToken.None);
         }
-
-        
 
         [LuisIntent("laugh-bot")]
         public async Task Laugh(IDialogContext context, LuisResult result) => await context.PostAsync($"{ FakeList.GetRandomLaugh()}  { FakeList.GetListRandomEmojiHappy(3) }");
@@ -134,7 +134,38 @@ namespace Bot4App.Dialogs.Luis.ai
             await context.PostAsync("**(▀̿Ĺ̯▀̿ ̿)** - Ok, me fala o texto então...");
         }
 
-        
+
+
+        private Attachment GetAudioCard()
+        {
+            return new AudioCard
+            {
+                Title = "I am your father",
+                Subtitle = "Star Wars: Episode V - The Empire Strikes Back",
+                Text = "The Empire Strikes Back (also known as Star Wars: Episode V – The Empire Strikes Back) is a 1980 American epic space opera film directed by Irvin Kershner. Leigh Brackett and Lawrence Kasdan wrote the screenplay, with George Lucas writing the film's story and serving as executive producer. The second installment in the original Star Wars trilogy, it was produced by Gary Kurtz for Lucasfilm Ltd. and stars Mark Hamill, Harrison Ford, Carrie Fisher, Billy Dee Williams, Anthony Daniels, David Prowse, Kenny Baker, Peter Mayhew and Frank Oz.",
+                Autostart = true,
+                Image = new ThumbnailUrl
+                {
+                    Url = "https://upload.wikimedia.org/wikipedia/en/3/3c/SW_-_Empire_Strikes_Back.jpg"
+                },
+                Media = new List<MediaUrl>
+                    {
+                        new MediaUrl()
+                        {
+                            Url = "http://www.wavlist.com/movies/004/father.wav"
+                        }
+                    },
+                Buttons = new List<CardAction>
+                    {
+                        new CardAction()
+                        {
+                            Title = "Read More",
+                            Type = ActionTypes.OpenUrl,
+                            Value = "https://en.wikipedia.org/wiki/The_Empire_Strikes_Back"
+                        }
+                    }
+            }.ToAttachment();
+        }
 
 
 
